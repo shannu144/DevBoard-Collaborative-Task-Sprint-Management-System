@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supply Chain Disruption & Operational KPI Suite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #151b2c;
+            --card-border: rgba(255, 255, 255, 0.08);
+            --primary: #3b82f6;
+            --primary-hover: #60a5fa;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --code-bg: #0d111d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 1.5rem;
+        }
+
+        .header-title h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-title p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        .badge-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            background-color: rgba(59, 130, 246, 0.15);
+            color: var(--primary);
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .badge-success {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* Tabs Interface */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--primary);
+            border-radius: 9999px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .kpi-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .kpi-trend {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+
+        /* Main Dashboard Sections */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .dashboard-layout {
+                grid-template-columns: 340px 1fr;
+            }
+        }
+
+        /* Sidebar Panels */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            color: #60a5fa;
+            border-left: 3px solid var(--primary);
+            padding-left: 0.5rem;
+        }
+
+        .slider-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .slider-label span:last-child {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            transition: background 0.15s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            background: #60a5fa;
+        }
+
+        /* Simulation Card inside Sidebar */
+        .simulation-result {
+            background-color: rgba(16, 185, 129, 0.08);
+            border: 1px dashed var(--success);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .simulation-result .val {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--success);
+            margin: 0.25rem 0;
+        }
+
+        /* Predictive AI Predictor Styles */
+        .predictor-row {
+            margin-bottom: 1rem;
+        }
+
+        .predictor-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .select-input {
+            width: 100%;
+            background-color: #0b0f19;
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            border-radius: 8px;
+            padding: 0.5rem;
+            outline: none;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .predict-btn {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-top: 1rem;
+        }
+
+        .predict-btn:hover {
+            background-color: #2563eb;
+        }
+
+        .prediction-box {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1.25rem;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Visuals Grid */
+        .visuals-area {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .visuals-area {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .chart-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-card h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            text-align: left;
+            width: 100%;
+        }
+
+        .chart-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.25s ease;
+        }
+
+        .chart-img:hover {
+            transform: scale(1.02);
+            cursor: zoom-in;
+        }
+
+        /* Playbook Box */
+        .playbook-container {
+            grid-column: 1 / -1;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .playbook-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-top: 1.25rem;
+        }
+
+        @media (min-width: 768px) {
+            .playbook-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .playbook-card {
+            background-color: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .playbook-card.active {
+            border-color: rgba(16, 185, 129, 0.3);
+            background-color: rgba(16, 185, 129, 0.03);
+        }
+
+        .playbook-card h5 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #60a5fa;
+            margin-bottom: 0.5rem;
+        }
+
+        /* SQL Tab Styles */
+        .sql-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .sql-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .sql-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.75rem;
+        }
+
+        .sql-card-header h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #60a5fa;
+        }
+
+        .copy-btn {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .sql-code-box {
+            background-color: var(--code-bg);
+            border-radius: 8px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            line-height: 1.6;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            margin-bottom: 1rem;
+        }
+
+        /* Syntax colors */
+        .sql-kw { color: #f97316; font-weight: 600; }
+        .sql-str { color: #10b981; }
+        .sql-comment { color: #64748b; font-style: italic; }
+        .sql-fn { color: #3b82f6; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <h1>Supply Chain Disruption & Operational KPI Suite</h1>
+            <p>End-to-End Diagnostics, Interactive Optimization & Predictive Analytics Dashboard</p>
+        </div>
+        <div class="badge-container">
+            <span class="badge">Localhost Server</span>
+            <span class="badge badge-success">Data Connected</span>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('dashboard-tab', this)">Dashboard & Optimization</button>
+        <button class="tab-btn" onclick="switchTab('sql-tab', this)">SQL KPI Sandbox</button>
+    </div>
+
+    <!-- TAB 1: DASHBOARD & SIMULATOR -->
+    <div id="dashboard-tab" class="tab-content active">
+        <!-- KPI Metric Summary -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Shipments</div>
+                <div class="kpi-value">84,993</div>
+                <div class="kpi-trend trend-up">Baseline Verified</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">On-Time Delivery (OTDR)</div>
+                <div class="kpi-value">62.10%</div>
+                <div class="kpi-trend trend-down">37.9% Delayed</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Order Fill Rate (OFR)</div>
+                <div class="kpi-value">99.11%</div>
+                <div class="kpi-trend trend-up">High Volume Fill</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Stockout Frequency</div>
+                <div class="kpi-value">7.27%</div>
+                <div class="kpi-trend trend-down">6,178 Incidents</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Lead Time</div>
+                <div class="kpi-value">10.37 Days</div>
+                <div class="kpi-trend trend-down">Disruption Risk</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Transportation Cost</div>
+                <div class="kpi-value">₹92.6 Cr</div>
+                <div class="kpi-trend trend-up">9,259 Lakhs</div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Layout -->
+        <div class="dashboard-layout">
+            <!-- Sidebar containing Simulator & Predictor -->
+            <div class="sidebar">
+                <!-- Optimization Simulator -->
+                <div class="panel">
+                    <h3>Savings Simulator</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                        Adjust sliders to simulate live operational improvements and calculate cost-savings.
+                    </p>
+
+                    <!-- Slider 1 -->
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Supplier Reallocation</span>
+                            <span id="realloc-val">40%</span>
+                        </div>
+                        <input type="range" class="slider" id="realloc-slider" min="0" max="100" step="5" value="40">
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">
+                            Reallocate from low-performing suppliers to elite partners.
+                        </p>
+                    </div>
+
+                    <!-- Slider 2 -->
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Route Optimization</span>
+                            <span id="route-val">30%</span>
+                        </div>
+                        <input type="range" class="slider" id="route-slider" min="0" max="100" step="5" value="30">
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">
+                            Bypass severe weather and streamline customs lanes.
+                        </p>
+                    </div>
+
+                    <!-- Slider 3 -->
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Safety Stock Balance</span>
+                            <span id="safety-val">12.5%</span>
+                        </div>
+                        <input type="range" class="slider" id="safety-slider" min="0" max="100" step="2.5" value="12.5">
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">
+                            Balance safety buffer levels between WH-303 and WH-301.
+                        </p>
+                    </div>
+
+                    <div class="simulation-result">
+                        <div class="kpi-label" style="color: var(--success); font-weight: 600;">Projected Annual Savings</div>
+                        <div class="val" id="savings-display">₹2.01 Crores</div>
+                        <p style="font-size: 0.75rem; color: var(--text-main);" id="lakhs-display">₹200.86 Lakhs</p>
+                    </div>
+                </div>
+
+                <!-- Prescriptive AI Risk Predictor -->
+                <div class="panel">
+                    <h3>Disruption Risk Predictor</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        Select route parameters to query a simulated predictive ML model for shipment delay risk.
+                    </p>
+
+                    <div class="predictor-row">
+                        <div class="predictor-label">Supplier Region</div>
+                        <select class="select-input" id="predict-region">
+                            <option value="West">West Region (Sea Lanes)</option>
+                            <option value="North">North Region (Road Lanes)</option>
+                            <option value="South">South Region (Pharma Core)</option>
+                            <option value="East">East Region (Textile/Apparel)</option>
+                        </select>
+                    </div>
+
+                    <div class="predictor-row">
+                        <div class="predictor-label">Transportation Mode</div>
+                        <select class="select-input" id="predict-mode">
+                            <option value="Sea">Sea Shipping</option>
+                            <option value="Road">Road Transit</option>
+                            <option value="Rail">Rail Freight</option>
+                            <option value="Air">Air Cargo</option>
+                        </select>
+                    </div>
+
+                    <button class="predict-btn" onclick="runPrediction()">Evaluate Route Risk</button>
+
+                    <div class="prediction-box" id="prediction-box">
+                        <div id="risk-badge-el" class="risk-badge">HIGH RISK</div>
+                        <div style="font-size: 1rem; font-weight: 700;" id="predict-days">Predicted Delay: +9.4 Days</div>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;" id="predict-desc">
+                            High exposure to customs bottlenecks at Western sea lanes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualizations Grid -->
+            <div class="visuals-area">
+                <div class="chart-card">
+                    <h4>1. Delivery Delay Distribution by Supplier Region</h4>
+                    <img src="/visualizations/01_delivery_delays_by_region.png" class="chart-img" alt="Delivery Delays by Region">
+                </div>
+
+                <div class="chart-card">
+                    <h4>2. Supplier Lead Time & Disruption Failure Rates</h4>
+                    <img src="/visualizations/02_supplier_bottlenecks.png" class="chart-img" alt="Supplier Bottleneck Profile">
+                </div>
+
+                <div class="chart-card">
+                    <h4>3. Warehouse Stress: Utilization vs. Stockouts</h4>
+                    <img src="/visualizations/03_warehouse_utilization_stockout.png" class="chart-img" alt="Warehouse Stress Profile">
+                </div>
+
+                <div class="chart-card">
+                    <h4>4. Disruption Hotspots: Average Impact Days</h4>
+                    <img src="/visualizations/04_disruption_hotspot_heatmap.png" class="chart-img" alt="Disruption Heatmap">
+                </div>
+            </div>
+
+            <!-- Mitigation Playbook Recommendations -->
+            <div class="playbook-container">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: #10b981; border-left: 3px solid var(--success); padding-left: 0.5rem;">
+                    Dynamic Operational Playbook & Mitigation Actions
+                </h3>
+                <div class="playbook-grid">
+                    <div class="playbook-card" id="playbook-s1">
+                        <h5>Supplier Realignment</h5>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);" id="playbook-s1-text">
+                            Reallocating 40% of orders reallocates 6,341 shipments away from Summit Supply and Velocity Industrial to Synapse Tech.
+                        </p>
+                    </div>
+                    <div class="playbook-card" id="playbook-s2">
+                        <h5>Lanes & Routing Shift</h5>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);" id="playbook-s2-text">
+                            Optimizing 30% of transits reroutes 469 shipments, bypassing Sea-West customs constraints.
+                        </p>
+                    </div>
+                    <div class="playbook-card" id="playbook-s3">
+                        <h5>Inventory Rebalancing</h5>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);" id="playbook-s3-text">
+                            Tuning safety stock by 12.5% prevents 772 stockouts at WH-301 using WH-303 buffer margins.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: SQL KPI SANDBOX -->
+    <div id="sql-tab" class="tab-content">
+        <div class="sql-container">
+            <!-- Query 1 -->
+            <div class="sql-card">
+                <div class="sql-card-header">
+                    <h3>1. Core Operational KPI Card Metrics</h3>
+                    <button class="copy-btn" onclick="copySql(1)">Copy SQL</button>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                    Calculates overall shipments volume, On-Time Delivery Rate (OTDR), average Order Fill Rate (OFR), and Stockout frequencies.
+                </p>
+                <div class="sql-code-box" id="sql-code-1">
+                    <span class="sql-kw">SELECT</span> <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-fn">COUNT</span>(Order_ID) <span class="sql-kw">AS</span> Total_Orders,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-fn">ROUND</span>(<span class="sql-fn">SUM</span>(On_Time_Delivery) * <span class="sql-str">100.0</span> / <span class="sql-fn">COUNT</span>(Order_ID), <span class="sql-str">2</span>) <span class="sql-kw">AS</span> On_Time_Delivery_Rate_OTDR,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-fn">ROUND</span>(<span class="sql-fn">AVG</span>(Order_Fill_Rate_Pct), <span class="sql-str">2</span>) <span class="sql-kw">AS</span> Avg_Order_Fill_Rate,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-fn">SUM</span>(Stockout_Flag) <span class="sql-kw">AS</span> Total_Stockouts,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-fn">ROUND</span>(<span class="sql-fn">SUM</span>(Stockout_Flag) * <span class="sql-str">100.0</span> / <span class="sql-fn">COUNT</span>(Order_ID), <span class="sql-str">2</span>) <span class="sql-kw">AS</span> Stockout_Frequency_Rate,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-fn">ROUND</span>(<span class="sql-fn">AVG</span>(Supplier_Lead_Time_Days), <span class="sql-str">2</span>) <span class="sql-kw">AS</span> Avg_Supplier_Lead_Time_Days<br>
+                    <span class="sql-kw">FROM</span> supply_chain_shipments;
+                </div>
+            </div>
+
+            <!-- Query 2 -->
+            <div class="sql-card">
+                <div class="sql-card-header">
+                    <h3>2. Supplier Performance Scoring (CTE & Window Functions)</h3>
+                    <button class="copy-btn" onclick="copySql(2)">Copy SQL</button>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                    Scores and ranks suppliers based on OTDR, Order Fill Rate, and lead time variance, using DENSE_RANK.
+                </p>
+                <div class="sql-code-box" id="sql-code-2">
+                    <span class="sql-kw">WITH</span> SupplierBaseMetrics <span class="sql-kw">AS</span> (<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-kw">SELECT</span> <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Supplier_ID, Supplier_Name,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-fn">SUM</span>(On_Time_Delivery) * <span class="sql-str">100.0</span> / <span class="sql-fn">COUNT</span>(Order_ID) <span class="sql-kw">AS</span> OTDR,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-fn">AVG</span>(Order_Fill_Rate_Pct) <span class="sql-kw">AS</span> OFR,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-fn">AVG</span>(Supplier_Lead_Time_Days) <span class="sql-kw">AS</span> Avg_Lead_Time<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-kw">FROM</span> supply_chain_shipments<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-kw">GROUP BY</span> Supplier_ID, Supplier_Name<br>
+                    ),<br>
+                    SupplierScoring <span class="sql-kw">AS</span> (<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-kw">SELECT</span> *,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(OTDR * <span class="sql-str">0.4</span>) + (OFR * <span class="sql-str">0.4</span>) + ((<span class="sql-str">20</span> - Avg_Lead_Time) * <span class="sql-str">5.0</span> * <span class="sql-str">0.2</span>) <span class="sql-kw">AS</span> Performance_Score<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-kw">FROM</span> SupplierBaseMetrics<br>
+                    )<br>
+                    <span class="sql-kw">SELECT</span> *,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-fn">DENSE_RANK</span>() <span class="sql-fn">OVER</span> (<span class="sql-kw">ORDER BY</span> Performance_Score <span class="sql-kw">DESC</span>) <span class="sql-kw">AS</span> Performance_Rank<br>
+                    <span class="sql-kw">FROM</span> SupplierScoring;
+                </div>
+            </div>
+
+            <!-- Query 3 -->
+            <div class="sql-card">
+                <div class="sql-card-header">
+                    <h3>3. Disruption Hotspots & Financial Exposure Analysis</h3>
+                    <button class="copy-btn" onclick="copySql(3)">Copy SQL</button>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                    Identifies vulnerable lanes, counting disruption incidents and summing total shipping cost exposure.
+                </p>
+                <div class="sql-code-box" id="sql-code-3">
+                    <span class="sql-kw">SELECT</span> <br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;Supplier_Region, Transportation_Mode, Disruption_Type,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-fn">COUNT</span>(Order_ID) <span class="sql-kw">AS</span> Disrupted_Orders_Count,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-fn">ROUND</span>(<span class="sql-fn">AVG</span>(Disruption_Impact_Days), <span class="sql-str">2</span>) <span class="sql-kw">AS</span> Avg_Disruption_Delay_Days,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="sql-fn">ROUND</span>(<span class="sql-fn">SUM</span>(Transportation_Cost_INR) / <span class="sql-str">100000.0</span>, <span class="sql-str">2</span>) <span class="sql-kw">AS</span> Transport_Spent_Lakhs<br>
+                    <span class="sql-kw">FROM</span> supply_chain_shipments<br>
+                    <span class="sql-kw">WHERE</span> Disruption_Type &lt;&gt; <span class="sql-str">'None'</span><br>
+                    <span class="sql-kw">GROUP BY</span> Supplier_Region, Transportation_Mode, Disruption_Type<br>
+                    <span class="sql-kw">ORDER BY</span> Disrupted_Orders_Count <span class="sql-kw">DESC</span>;
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching logic
+        function switchTab(tabId, btn) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(c => c.classList.remove('active'));
+
+            // Deactivate all buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(b => b.classList.remove('active'));
+
+            // Show selected tab content and active button
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // Sliders savings calculation
+        const LOW_PERF_ORDERS = 15854;
+        const SAVING_PER_ORDER = 1800;
+        const DISRUPTED_TRANSITS = 1564;
+        const SAVING_PER_TRANSIT = 4500;
+        const HISTORICAL_STOCKOUTS = 6178;
+        const SAVING_PER_STOCKOUT = 8500;
+
+        const reallocSlider = document.getElementById('realloc-slider');
+        const routeSlider = document.getElementById('route-slider');
+        const safetySlider = document.getElementById('safety-slider');
+
+        const reallocVal = document.getElementById('realloc-val');
+        const routeVal = document.getElementById('route-val');
+        const safetyVal = document.getElementById('safety-val');
+
+        const savingsDisplay = document.getElementById('savings-display');
+        const lakhsDisplay = document.getElementById('lakhs-display');
+
+        const playbookS1Text = document.getElementById('playbook-s1-text');
+        const playbookS2Text = document.getElementById('playbook-s2-text');
+        const playbookS3Text = document.getElementById('playbook-s3-text');
+
+        function formatCurrency(amount) {
+            const lakhs = amount / 100000;
+            const crores = lakhs / 100;
+            return {
+                crores: `₹${crores.toFixed(2)} Crores`,
+                lakhs: `₹${lakhs.toFixed(2)} Lakhs`
+            };
+        }
+
+        function updatePlaybook(reallocVal, routeVal, safetyVal) {
+            const reallocOrders = Math.round(LOW_PERF_ORDERS * reallocVal);
+            const routeOrders = Math.round(DISRUPTED_TRANSITS * routeVal);
+            const safetyStockouts = Math.round(HISTORICAL_STOCKOUTS * safetyVal);
+
+            playbookS1Text.textContent = `By reallocating ${reallocSlider.value}% of volume, we pivot ${reallocOrders.toLocaleString()} shipments away from underperforming suppliers, shaving ~9.6 days off their expected lead times.`;
+            playbookS2Text.textContent = `With ${routeSlider.value}% lane optimization, we mitigate bottlenecks on ${routeOrders.toLocaleString()} Sea-West transits, eliminating demurrage charges completely.`;
+            playbookS3Text.textContent = `Tuning safety stocks by ${safetySlider.value}% protects against ${safetyStockouts.toLocaleString()} warehouse stockout occurrences at WH-301 through load-balancing.`;
+
+            // Active classes toggle
+            document.getElementById('playbook-s1').classList.toggle('active', reallocVal > 0);
+            document.getElementById('playbook-s2').classList.toggle('active', routeVal > 0);
+            document.getElementById('playbook-s3').classList.toggle('active', safetyVal > 0);
+        }
+
+        function calculateSavings() {
+            const reallocPct = parseFloat(reallocSlider.value) / 100;
+            const routePct = parseFloat(routeSlider.value) / 100;
+            const safetyPct = parseFloat(safetySlider.value) / 100;
+
+            reallocVal.textContent = `${reallocSlider.value}%`;
+            routeVal.textContent = `${routeSlider.value}%`;
+            safetyVal.textContent = `${safetySlider.value}%`;
+
+            const s1 = LOW_PERF_ORDERS * reallocPct * SAVING_PER_ORDER;
+            const s2 = DISRUPTED_TRANSITS * routePct * SAVING_PER_TRANSIT;
+            const s3 = HISTORICAL_STOCKOUTS * safetyPct * SAVING_PER_STOCKOUT;
+
+            const totalSavings = s1 + s2 + s3;
+            const formatted = formatCurrency(totalSavings);
+
+            savingsDisplay.textContent = formatted.crores;
+            lakhsDisplay.textContent = formatted.lakhs;
+
+            updatePlaybook(reallocPct, routePct, safetyPct);
+        }
+
+        reallocSlider.addEventListener('input', calculateSavings);
+        routeSlider.addEventListener('input', calculateSavings);
+        safetySlider.addEventListener('input', calculateSavings);
+
+        // Predictive AI model mock logic
+        function runPrediction() {
+            const region = document.getElementById('predict-region').value;
+            const mode = document.getElementById('predict-mode').value;
+            const box = document.getElementById('prediction-box');
+            const badge = document.getElementById('risk-badge-el');
+            const daysEl = document.getElementById('predict-days');
+            const descEl = document.getElementById('predict-desc');
+
+            box.style.display = 'block';
+
+            let risk = "LOW";
+            let delay = 1.2;
+            let desc = "Standard shipping lane with clear clearance records and stable weather forecast.";
+            let color = "var(--success)";
+            let bg = "rgba(16, 185, 129, 0.1)";
+
+            if (region === 'West' && mode === 'Sea') {
+                risk = "SEVERE RISK";
+                delay = 10.4;
+                desc = "Extreme customs backlogs detected at Western port lanes. High exposure to severe delays.";
+                color = "var(--danger)";
+                bg = "rgba(239, 68, 68, 0.15)";
+            } else if (region === 'North' && mode === 'Road') {
+                risk = "HIGH RISK";
+                delay = 7.8;
+                desc = "Seasonal winter severe weather patterns impacting northern highway routes. Extended transit times.";
+                color = "var(--warning)";
+                bg = "rgba(245, 158, 11, 0.15)";
+            } else if (region === 'West' && mode === 'Road') {
+                risk = "MODERATE RISK";
+                delay = 4.2;
+                desc = "Mild regional highway congestion reported. Lead times likely to fluctuate by 3-5 days.";
+                color = "var(--warning)";
+                bg = "rgba(245, 158, 11, 0.15)";
+            } else if (mode === 'Air') {
+                risk = "LOW RISK";
+                delay = 0.5;
+                desc = "Air freight lane highly reliable. Express handling active with 98.4% on-time historical baseline.";
+                color = "var(--success)";
+                bg = "rgba(16, 185, 129, 0.15)";
+            }
+
+            badge.textContent = risk;
+            badge.style.color = color;
+            badge.style.backgroundColor = bg;
+            daysEl.textContent = `Predicted Delay: +${delay} Days`;
+            descEl.textContent = desc;
+        }
+
+        // Copy SQL to clipboard
+        function copySql(id) {
+            const el = document.getElementById(`sql-code-${id}`);
+            const text = el.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert(`SQL Query ${id} successfully copied to clipboard!`);
+            });
+        }
+
+        // Initialize simulation
+        calculateSavings();
+    </script>
+</body>
+</html>
